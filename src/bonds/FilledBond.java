@@ -1,32 +1,54 @@
-package model;
+package bonds;
+
+import elements.Element;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Bond
+public class FilledBond implements Serializable
 {
     private Element element1;
     private Element element2;
-    private int bondType;
+
+    private int bondType = 1;
 
     private static final int LINE_WIDTH = 5;
 
-    public Bond(int type, Element elem1, Element elem2)
+    public FilledBond(Element el1, Element el2)
     {
-        bondType = type;
-        element1 = elem1;
-        element2 = elem2;
-    }
-    public void draw(Graphics g)
-    {
-        drawGhost(g, bondType, element1, element2.getCenter());
+        element1 = el1;
+        element2 = el2;
+        element1.getFilledBonds().add(this);
+        element2.getFilledBonds().add(this);
     }
 
-    public static void drawGhost(Graphics g, int type, Element element, Point point)
+    public boolean upgrade()
     {
-        Point position = element.getCenter();
+        if(bondType < 3)
+        {
+            bondType++;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean downgrade()
+    {
+        if(bondType > 1)
+        {
+            bondType --;
+            return true;
+        }
+        return false;
+    }
+
+    public void draw(Graphics g)
+    {
+        Point position = element1.getCenter();
+        Point point = element2.getCenter();
         Graphics2D gr = (Graphics2D)g;
         gr.setColor(Color.WHITE);
-        switch (type)
+        switch (bondType)
         {
             case 2:
                 gr.setColor(Color.WHITE);
@@ -45,11 +67,10 @@ public class Bond
         }
         gr.setStroke(new BasicStroke(LINE_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
         gr.drawLine(position.x, position.y, point.x, point.y);
-        element.draw(g);
     }
 
-    public void delete()
+    public boolean connects(Element element)
     {
-        element1.unlink(bondType, element2);
+        return element == element1 || element == element2;
     }
 }

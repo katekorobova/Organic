@@ -1,5 +1,5 @@
 import drawing.Canvas;
-import elements.ElementName;
+import drawing.Tool;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +12,7 @@ public class MainWindow extends JFrame implements ActionListener
     private final static int BUTTON_HEIGHT = 64;
 
     private JToggleButton mouse = new JToggleButton(new ImageIcon("images/mouse.png"), true);
+    private JToggleButton delete = new JToggleButton("delete", false);
 
     private JToggleButton carbon = new JToggleButton("C", false);
     private JToggleButton hydrogen = new JToggleButton("H", false);
@@ -25,7 +26,7 @@ public class MainWindow extends JFrame implements ActionListener
 
     private Canvas canvas = new Canvas();
 
-    MainWindow()
+    private MainWindow()
     {
         setTitle("Organic");
         setLayout(new FlowLayout());
@@ -34,6 +35,7 @@ public class MainWindow extends JFrame implements ActionListener
         settings.setLayout(new GridLayout(13, 1));
 
         settings.add(mouse);
+        settings.add(delete);
 
         settings.add(carbon);
         settings.add(hydrogen);
@@ -92,26 +94,32 @@ public class MainWindow extends JFrame implements ActionListener
             hydrogen.setSelected(false);
             oxygen.setSelected(false);
             mouse.setSelected(false);
+            delete.setSelected(false);
 
             if (button == mouse)
             {
                 mouse.setSelected(true);
-                canvas.setMouse();
+                canvas.setTool(Tool.MOUSE);
+            }
+            else if(button == delete)
+            {
+                delete.setSelected(true);
+                canvas.setTool(Tool.DELETE);
             }
             else if(button == carbon)
             {
                 carbon.setSelected(true);
-                canvas.setElement(ElementName.CARBON);
+                canvas.setTool(Tool.CARBON);
             }
             else if (button == hydrogen)
             {
                 hydrogen.setSelected(true);
-                canvas.setElement(ElementName.HYDROGEN);
+                canvas.setTool(Tool.HYDROGEN);
             }
             else if (button == oxygen)
             {
                 oxygen.setSelected(true);
-                canvas.setElement(ElementName.OXYGEN);
+                canvas.setTool(Tool.OXYGEN);
             }
         }
     }

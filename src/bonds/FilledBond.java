@@ -4,22 +4,24 @@ import elements.Element;
 
 import java.awt.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilledBond implements Serializable
 {
     private Element element1;
     private Element element2;
-
     private int bondType = 1;
-
     private static final int LINE_WIDTH = 5;
+    public static ArrayList<FilledBond> all = new ArrayList<>();
 
     public FilledBond(Element el1, Element el2)
     {
         element1 = el1;
         element2 = el2;
-        element1.getFilledBonds().add(this);
-        element2.getFilledBonds().add(this);
+        element1.addFilledBond(this);
+        element2.addFilledBond(this);
+        all.add(this);
     }
 
     public boolean upgrade()
@@ -32,11 +34,13 @@ public class FilledBond implements Serializable
         return false;
     }
 
-    public boolean downgrade()
+    public boolean downgrade(List<UnfilledBond> unfilledBonds)
     {
         if(bondType > 1)
         {
             bondType --;
+            element1.addUnfilledBond(unfilledBonds);
+            element2.addUnfilledBond(unfilledBonds);
             return true;
         }
         return false;
@@ -72,5 +76,13 @@ public class FilledBond implements Serializable
     public boolean connects(Element element)
     {
         return element == element1 || element == element2;
+    }
+
+    public void delete(List<FilledBond> filledBonds, List<UnfilledBond> unfilledBonds)
+    {
+        while (downgrade(unfilledBonds));
+        element1.deleteFilledBond(this, unfilledBonds);
+        element2.deleteFilledBond(this, unfilledBonds);
+        filledBonds.remove(this);
     }
 }

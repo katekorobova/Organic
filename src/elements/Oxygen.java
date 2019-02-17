@@ -1,34 +1,24 @@
 package elements;
 
+import bonds.UnfilledBond;
 import drawing.Canvas;
 
 import java.awt.*;
+import java.util.List;
 
 public class Oxygen extends Element
 {
-    public Oxygen(Point point, double angle)
+    public Oxygen(Point point, java.util.List<UnfilledBond> bonds, List<Element> elements)
     {
-        elementName = ElementName.OXYGEN;
         valency = 2;
         bounds = new Rectangle(point.x - Canvas.oxygenImage.getWidth() / 2, point.y - Canvas.oxygenImage.getHeight() / 2, Canvas.oxygenImage.getWidth(), Canvas.oxygenImage.getHeight());
-        createBonds(angle);
+        addBonds(bonds);
+        elements.add(this);
     }
 
     @Override
     public void draw(Graphics g)
     {
         g.drawImage(Canvas.oxygenImage, bounds.x, bounds.y, null);
-    }
-
-    @Override
-    public boolean linkable(ElementName name)
-    {
-        switch (name)
-        {
-            case CARBON:
-            case HYDROGEN:
-                return true;
-            default: return false;
-        }
     }
 }

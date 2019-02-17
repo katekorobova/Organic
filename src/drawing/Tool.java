@@ -2,5 +2,5 @@ package drawing;
 
 public enum Tool
 {
-    ELEMENT, MOUSE
+    MOUSE, DELETE, CARBON, HYDROGEN, OXYGEN
 }

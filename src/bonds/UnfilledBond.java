@@ -4,6 +4,8 @@ import elements.Element;
 
 import java.awt.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class UnfilledBond implements Serializable
@@ -15,6 +17,7 @@ public class UnfilledBond implements Serializable
     private static final int INITIAL_LENGTH = 100;
     private static final int RADIUS = 10;
     private static final int LINE_WIDTH = 5;
+    public static ArrayList<UnfilledBond> all = new ArrayList<>();
 
     public UnfilledBond(Element el, double ang)
     {
@@ -22,6 +25,7 @@ public class UnfilledBond implements Serializable
         angle = ang;
         length = INITIAL_LENGTH;
         adjustEnd();
+        all.add(this);
     }
 
     public void draw(Graphics g)
@@ -55,38 +59,19 @@ public class UnfilledBond implements Serializable
         adjustAngle();
     }
 
-    public Element getElement()
-    {
-        return element;
-    }
-
     public boolean contains(Point point)
     {
         return end.distance(point) < RADIUS;
     }
 
-    public boolean mergeable(UnfilledBond bond)
+    public void merge(UnfilledBond bond, List<FilledBond> filledBonds, List<UnfilledBond> unfilledBonds)
     {
-        return element != bond.element && element.linkable(bond.element.elementName);
-    }
-
-    public FilledBond merge(UnfilledBond bond)
-    {
-        element.getUnfilledBonds().remove(this);
-        bond.element.getUnfilledBonds().remove(bond);
-        for(FilledBond filledBond: element.getFilledBonds())
+        if(element.link(bond.element, filledBonds))
         {
-            if(filledBond.connects(bond.element))
-            {
-                filledBond.upgrade();
-                return null;
-            }
+            unfilledBonds.remove(this);
+            unfilledBonds.remove(bond);
+            element.deleteUnfilledBond(this);
+            bond.element.deleteUnfilledBond(bond);
         }
-        return new FilledBond(element, bond.element);
-    }
-
-    public double getAngle()
-    {
-        return angle;
     }
 }

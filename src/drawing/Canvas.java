@@ -2,8 +2,9 @@ package drawing;
 
 import elements.Carbon;
 import elements.Element;
-import elements.ElementName;
 import bonds.*;
+import elements.Hydrogen;
+import elements.Oxygen;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 
 public class Canvas extends JPanel implements MouseListener, MouseMotionListener, Serializable
 {
-    public static final int PANEL_WIDTH = 1440;
-    public static final int PANEL_HEIGHT = 960;
+    private static final int PANEL_WIDTH = 1440;
+    private static final int PANEL_HEIGHT = 960;
     private BufferedImage image = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
 
     private ArrayList<Element> elements = new ArrayList<>();
@@ -24,7 +25,6 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     private ArrayList<UnfilledBond> unfilledBonds = new ArrayList<>();
 
     private Tool tool = Tool.MOUSE;
-    private ElementName elementName;
     private Element draggedElement;
     private UnfilledBond draggedBond;
 
@@ -81,15 +81,9 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
         g.drawImage(image, 0, 0, null);
     }
 
-    public void setElement(ElementName name)
+    public void setTool(Tool t)
     {
-        tool = Tool.ELEMENT;
-        elementName = name;
-    }
-
-    public void setMouse()
-    {
-        tool = Tool.MOUSE;
+        tool = t;
     }
 
     public void reset()
@@ -97,9 +91,6 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
         elements.clear();
         filledBonds.clear();
         unfilledBonds.clear();
-        Carbon first = new Carbon(new Point(PANEL_WIDTH / 2, PANEL_HEIGHT / 2), 0);
-        elements.add(first);
-        unfilledBonds.addAll(first.getUnfilledBonds());
         paintImage();
     }
 
@@ -170,13 +161,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                     {
                         if(bond.contains(point))
                         {
-                            if(draggedBond.mergeable(bond))
-                            {
-                                FilledBond newBond = draggedBond.merge(bond);
-                                if(newBond != null) filledBonds.add(newBond);
-                                unfilledBonds.remove(draggedBond);
-                                unfilledBonds.remove(bond);
-                            }
+                            draggedBond.merge(bond, filledBonds, unfilledBonds);
                             break;
                         }
                     }
@@ -184,22 +169,35 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                 draggedElement = null;
                 draggedBond = null;
                 break;
-            case ELEMENT:
-                for(UnfilledBond bond: unfilledBonds)
+            case DELETE:
+                for(int i = elements.size() - 1; i >= 0; i--)
                 {
-                    if (bond.contains(point))
+                    Element element = elements.get(i);
+                    if (element.contains(point))
                     {
-                        if(bond.getElement().linkable(elementName))
-                        {
-                            Element newElement = Element.elementByName(elementName, point, bond.getAngle() + Math.PI);
-                            elements.add(newElement);
-                            filledBonds.add(bond.getElement().link(bond, newElement));
-                            unfilledBonds.remove(bond);
-                            unfilledBonds.addAll(newElement.getUnfilledBonds());
-                        }
+                        element.delete(elements, filledBonds, unfilledBonds);
                         break;
                     }
                 }
+                break;
+                /*for(UnfilledBond bond: unfilledBonds)
+                {
+                    if(bond.contains(point))
+                    {
+                        draggedBond = bond;
+                        unfilledBonds.remove(bond);
+                        unfilledBonds.add(bond);
+                        break;
+                    }
+                }*/
+            case CARBON:
+                new Carbon(point, unfilledBonds, elements);
+                break;
+            case HYDROGEN:
+                new Hydrogen(point, unfilledBonds, elements);
+                break;
+            case OXYGEN:
+                new Oxygen(point, unfilledBonds, elements);
                 break;
         }
         paintImage();

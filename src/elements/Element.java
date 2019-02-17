@@ -1,6 +1,5 @@
 package elements;
 
-import drawing.Canvas;
 import bonds.FilledBond;
 import bonds.UnfilledBond;
 
@@ -8,23 +7,21 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public abstract class Element implements Serializable
 {
-    public ElementName elementName;
     int valency;
     Rectangle bounds;
-    List<FilledBond> filledBonds = new ArrayList<>();
-    List<UnfilledBond> unfilledBonds = new ArrayList<>();
+    private List<FilledBond> filledBonds = new ArrayList<>();
+    private List<UnfilledBond> unfilledBonds = new ArrayList<>();
+    private List<Element> dependent = new ArrayList<>();
+    private static Random random = new Random();
+    public static ArrayList<Element> all = new ArrayList<>();
 
-    public List<FilledBond> getFilledBonds()
+    Element()
     {
-        return filledBonds;
-    }
-
-    public List<UnfilledBond> getUnfilledBonds()
-    {
-        return unfilledBonds;
+        all.add(this);
     }
 
     public boolean contains(Point point)
@@ -34,16 +31,29 @@ public abstract class Element implements Serializable
 
     public void moveTo(Point point)
     {
-        if (point.x < bounds.width / 2) point.x = bounds.width / 2;
-        if (point.x >= Canvas.PANEL_WIDTH - bounds.width / 2) point.x = Canvas.PANEL_WIDTH - bounds.width / 2 - 1;
-        if (point.y < bounds.height / 2) point.y = bounds.height / 2;
-        if (point.y >= Canvas.PANEL_HEIGHT - bounds.height / 2) point.y = Canvas.PANEL_HEIGHT - bounds.height / 2 - 1;
-
+        int deltaX = point.x - bounds.width / 2 - bounds.x;
+        int deltaY = point.y - bounds.height / 2 - bounds.y;
         bounds.setLocation(point.x - bounds.width / 2, point.y - bounds.height / 2);
-
         for(UnfilledBond bond: unfilledBonds)
         {
             bond.adjustEnd();
+        }
+        for(Element element: dependent)
+        {
+            element.moveBy(deltaX, deltaY);
+        }
+    }
+
+    private void moveBy(int x, int y)
+    {
+        bounds.setLocation(bounds.x + x, bounds.y + y);
+        for(UnfilledBond bond: unfilledBonds)
+        {
+            bond.adjustEnd();
+        }
+        for(Element element: dependent)
+        {
+            element.moveBy(x, y);
         }
     }
 
@@ -54,34 +64,62 @@ public abstract class Element implements Serializable
         return new Point((int)bounds.getCenterX(), (int)bounds.getCenterY());
     }
 
-    public FilledBond link(UnfilledBond bond, Element element)
+    public boolean link(Element element, List<FilledBond> bonds)
     {
-        unfilledBonds.remove(bond);
-        element.unfilledBonds.remove(0);
-        return new FilledBond(this, element);
-    }
+        if(this == element) return false;
 
-    public boolean linkable(ElementName name)
-    {
+        for(FilledBond bond: filledBonds)
+        {
+            if(bond.connects(element))
+            {
+                return bond.upgrade();
+            }
+        }
+        FilledBond newBond = new FilledBond(this, element);
+        bonds.add(newBond);
+        if(valency > element.valency) dependent.add(element);
+        else if(valency < element.valency) element.dependent.add(this);
         return true;
     }
 
-    public static Element elementByName(ElementName name, Point point, double angle)
-    {
-        switch (name)
-        {
-            case CARBON: return new Carbon(point, angle);
-            case HYDROGEN:return new Hydrogen(point, angle);
-            case OXYGEN: return new Oxygen(point, angle);
-            default: return null;
-        }
-    }
-
-    void createBonds(double angle)
+    void addBonds(List<UnfilledBond> bonds)
     {
         for(int i = 0; i < valency; i++)
         {
-            unfilledBonds.add(new UnfilledBond(this, 2 * Math.PI * i / valency + angle));
+            unfilledBonds.add(new UnfilledBond(this, 2 * Math.PI * i / valency));
         }
+        bonds.addAll(unfilledBonds);
+    }
+
+    public void addFilledBond(FilledBond bond)
+    {
+        filledBonds.add(bond);
+    }
+    public void addUnfilledBond(List<UnfilledBond> uBonds)
+    {
+        UnfilledBond newBond = new UnfilledBond(this, 2 * Math.PI * random.nextDouble());
+        unfilledBonds.add(newBond);
+        uBonds.add(newBond);
+    }
+
+    public void delete(List<Element> elements, List<FilledBond> fBonds, List<UnfilledBond> uBonds)
+    {
+        for(FilledBond bond: filledBonds)
+        {
+            bond.delete(fBonds, uBonds);
+        }
+        elements.remove(this);
+        uBonds.removeAll(unfilledBonds);
+}
+
+    public void deleteFilledBond(FilledBond bond, List<UnfilledBond> uBonds)
+    {
+        filledBonds.remove(bond);
+        addUnfilledBond(uBonds);
+    }
+
+    public void deleteUnfilledBond(UnfilledBond bond)
+    {
+        unfilledBonds.remove(bond);
     }
 }

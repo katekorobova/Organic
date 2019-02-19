@@ -5,8 +5,6 @@ import elements.Element;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class UnfilledBond implements Serializable
 {
@@ -64,14 +62,18 @@ public class UnfilledBond implements Serializable
         return end.distance(point) < RADIUS;
     }
 
-    public void merge(UnfilledBond bond, List<FilledBond> filledBonds, List<UnfilledBond> unfilledBonds)
+    public void merge(UnfilledBond bond)
     {
-        if(element.link(bond.element, filledBonds))
-        {
-            unfilledBonds.remove(this);
-            unfilledBonds.remove(bond);
-            element.deleteUnfilledBond(this);
-            bond.element.deleteUnfilledBond(bond);
-        }
+        element.link(bond.element, this, bond);
+    }
+    public Element getElement()
+    {
+        return element;
+    }
+
+    public void delete()
+    {
+        element.removeUnfilledBond(this);
+        all.remove(this);
     }
 }

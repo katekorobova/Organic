@@ -1,3 +1,4 @@
+import analysis.Analyser;
 import drawing.Canvas;
 import drawing.Tool;
 
@@ -25,6 +26,7 @@ public class MainWindow extends JFrame implements ActionListener
     private JButton exit = new JButton("Exit");
 
     private Canvas canvas = new Canvas();
+    private Analyser analyser = new Analyser();
 
     private MainWindow()
     {

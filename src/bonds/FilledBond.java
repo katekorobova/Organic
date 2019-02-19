@@ -5,7 +5,6 @@ import elements.Element;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class FilledBond implements Serializable
 {
@@ -15,32 +14,44 @@ public class FilledBond implements Serializable
     private static final int LINE_WIDTH = 5;
     public static ArrayList<FilledBond> all = new ArrayList<>();
 
-    public FilledBond(Element el1, Element el2)
+    public FilledBond(UnfilledBond bond1, UnfilledBond bond2)
     {
-        element1 = el1;
-        element2 = el2;
+        element1 = bond1.getElement();
+        element2 = bond2.getElement();
         element1.addFilledBond(this);
         element2.addFilledBond(this);
+        bond1.delete();
+        bond2.delete();
         all.add(this);
     }
 
-    public boolean upgrade()
+    public boolean upgrade(UnfilledBond bond1, UnfilledBond bond2)
     {
         if(bondType < 3)
         {
             bondType++;
+            bond1.delete();
+            bond2.delete();
             return true;
         }
         return false;
     }
 
-    public boolean downgrade(List<UnfilledBond> unfilledBonds)
+    public boolean downgrade()
     {
-        if(bondType > 1)
+        if(bondType > 0)
         {
             bondType --;
-            element1.addUnfilledBond(unfilledBonds);
-            element2.addUnfilledBond(unfilledBonds);
+            element1.addUnfilledBond();
+            element2.addUnfilledBond();
+            if(bondType == 0)
+            {
+                element1.removeDependent(element2);
+                element2.removeDependent(element1);
+                element1.removeFilledBond(this);
+                element2.removeFilledBond(this);
+                all.remove(this);
+            }
             return true;
         }
         return false;
@@ -78,11 +89,15 @@ public class FilledBond implements Serializable
         return element == element1 || element == element2;
     }
 
-    public void delete(List<FilledBond> filledBonds, List<UnfilledBond> unfilledBonds)
+    public void delete()
     {
-        while (downgrade(unfilledBonds));
-        element1.deleteFilledBond(this, unfilledBonds);
-        element2.deleteFilledBond(this, unfilledBonds);
-        filledBonds.remove(this);
+        while (downgrade());
+    }
+
+    public boolean contains(Point point)
+    {
+        Point start = element1.getCenter();
+        Point end = element2.getCenter();
+        return point.distance(start) + point.distance(end) < start.distance(end) + LINE_WIDTH;
     }
 }

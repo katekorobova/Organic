@@ -64,62 +64,63 @@ public abstract class Element implements Serializable
         return new Point((int)bounds.getCenterX(), (int)bounds.getCenterY());
     }
 
-    public boolean link(Element element, List<FilledBond> bonds)
+    public void link(Element element, UnfilledBond myBond, UnfilledBond theirBond)
     {
-        if(this == element) return false;
+        if(this == element) return;
 
         for(FilledBond bond: filledBonds)
         {
             if(bond.connects(element))
             {
-                return bond.upgrade();
+                bond.upgrade(myBond, theirBond);
+                return;
             }
         }
-        FilledBond newBond = new FilledBond(this, element);
-        bonds.add(newBond);
+        new FilledBond(myBond, theirBond);
         if(valency > element.valency) dependent.add(element);
         else if(valency < element.valency) element.dependent.add(this);
-        return true;
     }
 
-    void addBonds(List<UnfilledBond> bonds)
+    void addBonds()
     {
         for(int i = 0; i < valency; i++)
         {
             unfilledBonds.add(new UnfilledBond(this, 2 * Math.PI * i / valency));
         }
-        bonds.addAll(unfilledBonds);
     }
 
     public void addFilledBond(FilledBond bond)
     {
         filledBonds.add(bond);
     }
-    public void addUnfilledBond(List<UnfilledBond> uBonds)
+    public void addUnfilledBond()
     {
-        UnfilledBond newBond = new UnfilledBond(this, 2 * Math.PI * random.nextDouble());
-        unfilledBonds.add(newBond);
-        uBonds.add(newBond);
+        unfilledBonds.add(new UnfilledBond(this, 2 * Math.PI * random.nextDouble()));
     }
 
-    public void delete(List<Element> elements, List<FilledBond> fBonds, List<UnfilledBond> uBonds)
+    public void delete()
     {
-        for(FilledBond bond: filledBonds)
+        for(int i = filledBonds.size() - 1; i >= 0; i--)
         {
-            bond.delete(fBonds, uBonds);
+            FilledBond bond = filledBonds.get(i);
+            bond.delete();
         }
-        elements.remove(this);
-        uBonds.removeAll(unfilledBonds);
+        Element.all.remove(this);
+        UnfilledBond.all.removeAll(unfilledBonds);
 }
 
-    public void deleteFilledBond(FilledBond bond, List<UnfilledBond> uBonds)
+    public void removeFilledBond(FilledBond bond)
     {
         filledBonds.remove(bond);
-        addUnfilledBond(uBonds);
     }
 
-    public void deleteUnfilledBond(UnfilledBond bond)
+    public void removeUnfilledBond(UnfilledBond bond)
     {
         unfilledBonds.remove(bond);
+    }
+
+    public void removeDependent(Element element)
+    {
+        dependent.remove(element);
     }
 }

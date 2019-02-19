@@ -20,10 +20,6 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     private static final int PANEL_HEIGHT = 960;
     private BufferedImage image = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
 
-    private ArrayList<Element> elements = new ArrayList<>();
-    private ArrayList<FilledBond> filledBonds = new ArrayList<>();
-    private ArrayList<UnfilledBond> unfilledBonds = new ArrayList<>();
-
     private Tool tool = Tool.MOUSE;
     private Element draggedElement;
     private UnfilledBond draggedBond;
@@ -60,15 +56,15 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     {
         Graphics g = image.getGraphics();
         super.paintComponent(g);
-        for(FilledBond bond: filledBonds)
+        for(FilledBond bond: FilledBond.all)
         {
             bond.draw(g);
         }
-        for(UnfilledBond bond: unfilledBonds)
+        for(UnfilledBond bond: UnfilledBond.all)
         {
             bond.draw(g);
         }
-        for(Element element: elements)
+        for(Element element: Element.all)
         {
             element.draw(g);
         }
@@ -88,9 +84,9 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
 
     public void reset()
     {
-        elements.clear();
-        filledBonds.clear();
-        unfilledBonds.clear();
+        Element.all.clear();
+        FilledBond.all.clear();
+        UnfilledBond.all.clear();
         paintImage();
     }
 
@@ -102,25 +98,30 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
         switch (tool)
         {
             case MOUSE:
-                for(int i = elements.size() - 1; i >= 0; i--)
+                boolean cont = true;
+                for(int i = Element.all.size() - 1; i >= 0; i--)
                 {
-                    Element element = elements.get(i);
+                    Element element = Element.all.get(i);
                     if (element.contains(point))
                     {
                         draggedElement = element;
-                        elements.remove(element);
-                        elements.add(element);
+                        Element.all.remove(element);
+                        Element.all.add(element);
+                        cont = false;
                         break;
                     }
                 }
-                for(UnfilledBond bond: unfilledBonds)
+                if(cont)
                 {
-                    if(bond.contains(point))
+                    for (UnfilledBond bond : UnfilledBond.all)
                     {
-                        draggedBond = bond;
-                        unfilledBonds.remove(bond);
-                        unfilledBonds.add(bond);
-                        break;
+                        if (bond.contains(point))
+                        {
+                            draggedBond = bond;
+                            UnfilledBond.all.remove(bond);
+                            UnfilledBond.all.add(bond);
+                            break;
+                        }
                     }
                 }
                 break;
@@ -157,11 +158,11 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
             case MOUSE:
                 if(draggedBond != null)
                 {
-                    for(UnfilledBond bond: unfilledBonds)
+                    for(UnfilledBond bond: UnfilledBond.all)
                     {
                         if(bond.contains(point))
                         {
-                            draggedBond.merge(bond, filledBonds, unfilledBonds);
+                            draggedBond.merge(bond);
                             break;
                         }
                     }
@@ -170,34 +171,37 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                 draggedBond = null;
                 break;
             case DELETE:
-                for(int i = elements.size() - 1; i >= 0; i--)
+                boolean cont = true;
+                for(int i = Element.all.size() - 1; i >= 0; i--)
                 {
-                    Element element = elements.get(i);
+                    Element element = Element.all.get(i);
                     if (element.contains(point))
                     {
-                        element.delete(elements, filledBonds, unfilledBonds);
+                        element.delete();
+                        cont = false;
                         break;
                     }
                 }
-                break;
-                /*for(UnfilledBond bond: unfilledBonds)
+                if(cont)
                 {
-                    if(bond.contains(point))
+                    for (FilledBond bond : FilledBond.all)
                     {
-                        draggedBond = bond;
-                        unfilledBonds.remove(bond);
-                        unfilledBonds.add(bond);
-                        break;
+                        if (bond.contains(point))
+                        {
+                            bond.downgrade();
+                            break;
+                        }
                     }
-                }*/
+                }
+                break;
             case CARBON:
-                new Carbon(point, unfilledBonds, elements);
+                new Carbon(point);
                 break;
             case HYDROGEN:
-                new Hydrogen(point, unfilledBonds, elements);
+                new Hydrogen(point);
                 break;
             case OXYGEN:
-                new Oxygen(point, unfilledBonds, elements);
+                new Oxygen(point);
                 break;
         }
         paintImage();
@@ -251,9 +255,9 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
             try
             {
                 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path + ".txt"));
-                oos.writeObject(elements);
-                oos.writeObject(filledBonds);
-                oos.writeObject(unfilledBonds);
+                oos.writeObject(Element.all);
+                oos.writeObject(FilledBond.all);
+                oos.writeObject(UnfilledBond.all);
                 oos.close();
                 textFrame.setVisible(false);
                 textFrame.dispose();
@@ -279,9 +283,9 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
             try
             {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path + ".txt"));
-                elements = (ArrayList<Element>)ois.readObject();
-                filledBonds = (ArrayList<FilledBond>)ois.readObject();
-                unfilledBonds = (ArrayList<UnfilledBond>)ois.readObject();
+                Element.all = (ArrayList<Element>)ois.readObject();
+                FilledBond.all = (ArrayList<FilledBond>)ois.readObject();
+                UnfilledBond.all = (ArrayList<UnfilledBond>)ois.readObject();
                 textFrame.setVisible(false);
                 textFrame.dispose();
                 paintImage();

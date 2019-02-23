@@ -1,10 +1,8 @@
 package drawing;
 
-import elements.Carbon;
 import elements.Element;
 import bonds.*;
-import elements.Hydrogen;
-import elements.Oxygen;
+import elements.ElementName;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -195,13 +193,13 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                 }
                 break;
             case CARBON:
-                new Carbon(point);
+                new Element(ElementName.CARBON, point);
                 break;
             case HYDROGEN:
-                new Hydrogen(point);
+                new Element(ElementName.HYDROGEN, point);
                 break;
             case OXYGEN:
-                new Oxygen(point);
+                new Element(ElementName.OXYGEN, point);
                 break;
         }
         paintImage();
@@ -223,6 +221,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     {
         JFrame textFrame = new JFrame("Enter the name of the file");
         JTextField textField = new JTextField(30);
+        textField.setFont(new Font("TimesRoman", Font.PLAIN, 18));
         textFrame.add(textField);
         textFrame.pack();
         textField.addActionListener(e1 ->
@@ -247,6 +246,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     {
         JFrame textFrame = new JFrame("Enter the name of the file");
         JTextField textField = new JTextField(30);
+        textField.setFont(new Font("TimesRoman", Font.PLAIN, 18));
         textFrame.add(textField);
         textFrame.pack();
         textField.addActionListener(e1 ->
@@ -275,6 +275,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     {
         JFrame textFrame = new JFrame("Enter the name of the file");
         JTextField textField = new JTextField(30);
+        textField.setFont(new Font("TimesRoman", Font.PLAIN, 18));
         textFrame.add(textField);
         textFrame.pack();
         textField.addActionListener(e1 ->

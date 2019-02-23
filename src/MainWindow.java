@@ -13,17 +13,18 @@ public class MainWindow extends JFrame implements ActionListener
     private final static int BUTTON_HEIGHT = 64;
 
     private JToggleButton mouse = new JToggleButton(new ImageIcon("images/mouse.png"), true);
-    private JToggleButton delete = new JToggleButton("delete", false);
+    private JToggleButton delete = new JToggleButton(new ImageIcon("images/scissors.png"), false);
 
-    private JToggleButton carbon = new JToggleButton("C", false);
-    private JToggleButton hydrogen = new JToggleButton("H", false);
-    private JToggleButton oxygen = new JToggleButton("O", false);
+    private JToggleButton carbon = new JToggleButton(new ImageIcon("images/carbon-button.png"), false);
+    private JToggleButton hydrogen = new JToggleButton(new ImageIcon("images/hydrogen-button.png"), false);
+    private JToggleButton oxygen = new JToggleButton(new ImageIcon("images/oxygen-button.png"), false);
 
-    private JButton saveImage = new JButton("\uD83D\uDCBE");
-    private JButton saveConfiguration = new JButton("save");
-    private JButton loadConfiguration = new JButton("load");
-    private JButton reset = new JButton("Reset");
-    private JButton exit = new JButton("Exit");
+    private JButton analyse = new JButton(new ImageIcon("images/information.png"));
+    private JButton saveImage = new JButton(new ImageIcon("images/photo.png"));
+    private JButton saveConfiguration = new JButton(new ImageIcon("images/save.png"));
+    private JButton loadConfiguration = new JButton(new ImageIcon("images/load.png"));
+    private JButton reset = new JButton(new ImageIcon("images/reset.png"));
+    private JButton exit = new JButton(new ImageIcon("images/exit.png"));
 
     private Canvas canvas = new Canvas();
     private Analyser analyser = new Analyser();
@@ -34,7 +35,7 @@ public class MainWindow extends JFrame implements ActionListener
         setLayout(new FlowLayout());
 
         JPanel settings = new JPanel();
-        settings.setLayout(new GridLayout(13, 1));
+        settings.setLayout(new GridLayout(11, 1));
 
         settings.add(mouse);
         settings.add(delete);
@@ -43,6 +44,7 @@ public class MainWindow extends JFrame implements ActionListener
         settings.add(hydrogen);
         settings.add(oxygen);
 
+        settings.add(analyse);
         settings.add(saveImage);
         settings.add(saveConfiguration);
         settings.add(loadConfiguration);
@@ -69,7 +71,11 @@ public class MainWindow extends JFrame implements ActionListener
     public void actionPerformed(ActionEvent e)
     {
         Object button = e.getSource();
-        if(button == saveImage)
+        if(button == analyse)
+        {
+            analyser.analyse();
+        }
+        else if(button == saveImage)
         {
             canvas.saveImage();
         }
@@ -89,6 +95,7 @@ public class MainWindow extends JFrame implements ActionListener
         {
             setVisible(false);
             dispose();
+            System.exit(0);
         }
         else
         {

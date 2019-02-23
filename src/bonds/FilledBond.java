@@ -1,6 +1,7 @@
 package bonds;
 
 import elements.Element;
+import elements.ElementName;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -99,5 +100,26 @@ public class FilledBond implements Serializable
         Point start = element1.getCenter();
         Point end = element2.getCenter();
         return point.distance(start) + point.distance(end) < start.distance(end) + LINE_WIDTH;
+    }
+
+    public Element getAnother(Element element)
+    {
+        if(element1 == element) return element2;
+        if(element2 == element) return element1;
+        return null;
+    }
+
+    public boolean isDouble()
+    {
+        return bondType == 2 &&
+                element1.elementName == ElementName.CARBON &&
+                element2.elementName == ElementName.CARBON;
+    }
+
+    public boolean isTriple()
+    {
+        return bondType == 3 &&
+                element1.elementName == ElementName.CARBON &&
+                element2.elementName == ElementName.CARBON;
     }
 }

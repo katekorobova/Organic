@@ -66,12 +66,12 @@ public class UnfilledBond implements Serializable
     {
         element.link(bond.element, this, bond);
     }
-    public Element getElement()
+    Element getElement()
     {
         return element;
     }
 
-    public void delete()
+    void delete()
     {
         element.removeUnfilledBond(this);
         all.remove(this);

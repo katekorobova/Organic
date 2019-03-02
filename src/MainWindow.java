@@ -1,11 +1,14 @@
-import analysis.Analyser;
 import drawing.Canvas;
 import drawing.Tool;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class MainWindow extends JFrame implements ActionListener
 {
@@ -27,15 +30,28 @@ public class MainWindow extends JFrame implements ActionListener
     private JButton exit = new JButton(new ImageIcon("images/exit.png"));
 
     private Canvas canvas = new Canvas();
-    private Analyser analyser = new Analyser();
 
     private MainWindow()
     {
-        setTitle("Organic");
+        setTitle("Редактор органических соединений");
         setLayout(new FlowLayout());
 
         JPanel settings = new JPanel();
         settings.setLayout(new GridLayout(11, 1));
+
+        mouse.setToolTipText("Передвинуть атом или конец незаполненной связи. " +
+                "Чтобы соединить два атома связью, потяните за конец незаполненной связи одного атома " +
+                "и отпустите над концом незаполненной связи другого.");
+        delete.setToolTipText("Удалить атом или связь.");
+        carbon.setToolTipText("Поместить атом углерода на полотно.");
+        hydrogen.setToolTipText("Поместить атом водорода на полотно.");
+        oxygen.setToolTipText("Поместить атом кислорода на полотно.");
+        analyse.setToolTipText("Проанализировать молекулу.");
+        saveImage.setToolTipText("Сохранить изображение полотна.");
+        saveConfiguration.setToolTipText("Сохранить конфигурацию молекулы в файл.");
+        loadConfiguration.setToolTipText("Загрузить конфигурацию молекулы из файла.");
+        reset.setToolTipText("Очистить полотно.");
+        exit.setToolTipText("Выйти.");
 
         settings.add(mouse);
         settings.add(delete);
@@ -61,7 +77,16 @@ public class MainWindow extends JFrame implements ActionListener
         add(settings);
         add(canvas);
         pack();
-
+        BufferedImage icon;
+        try
+        {
+            icon = ImageIO.read(new File("images/icon.png"));
+            setIconImage(icon);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -73,7 +98,7 @@ public class MainWindow extends JFrame implements ActionListener
         Object button = e.getSource();
         if(button == analyse)
         {
-            analyser.analyse();
+            canvas.analyse();
         }
         else if(button == saveImage)
         {

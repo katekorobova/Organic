@@ -1,3 +1,8 @@
+package drawing;
+
+import structure.ElementName;
+import structure.Molecule;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +32,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
         addMouseMotionListener(this);
     }
 
+    //I store images here as I need Molecule to be Serializable
     private static void loadImages()
     {
         try
@@ -41,6 +47,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
         }
     }
 
+    //I draw the molecule on a BitMap image first and then draw this image on the canvas
     private void paintImage()
     {
         Graphics g = image.getGraphics();
@@ -60,6 +67,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
         tool = t;
     }
 
+    //Clear the canvas
     public void reset()
     {
         molecule = new Molecule();
@@ -130,6 +138,7 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
     @Override
     public void mouseMoved(MouseEvent e) {}
 
+    //Save the picture of canvas
     public void saveImage()
     {
         JFrame textFrame = new JFrame("Enter the name of the file");
@@ -151,10 +160,21 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                 textField.setText("");
             }
         });
+        BufferedImage icon;
+        try
+        {
+            icon = ImageIO.read(new File("images/icon.png"));
+            textFrame.setIconImage(icon);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         textFrame.setLocationRelativeTo(null);
         textFrame.setVisible(true);
     }
 
+    //Save the molecule to file
     public void saveConfiguration()
     {
         JFrame textFrame = new JFrame("Enter the name of the file");
@@ -178,10 +198,21 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                 textField.setText("");
             }
         });
+        BufferedImage icon;
+        try
+        {
+            icon = ImageIO.read(new File("images/icon.png"));
+            textFrame.setIconImage(icon);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         textFrame.setLocationRelativeTo(null);
         textFrame.setVisible(true);
     }
 
+    //Load a molecule from file
     public void loadConfiguration()
     {
         JFrame textFrame = new JFrame("Enter the name of the file");
@@ -204,6 +235,38 @@ public class Canvas extends JPanel implements MouseListener, MouseMotionListener
                 textField.setText("");
             }
         });
+        BufferedImage icon;
+        try
+        {
+            icon = ImageIO.read(new File("images/icon.png"));
+            textFrame.setIconImage(icon);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        textFrame.setLocationRelativeTo(null);
+        textFrame.setVisible(true);
+    }
+
+    //Analyse the molecule
+    public void analyse()
+    {
+        JFrame textFrame = new JFrame("Analysis");
+        JTextArea textArea = new JTextArea(molecule.analyse());
+        textArea.setFont(new Font("TimesRoman", Font.PLAIN, 18));
+        textFrame.add(textArea);
+        textFrame.pack();
+        BufferedImage icon;
+        try
+        {
+            icon = ImageIO.read(new File("images/icon.png"));
+            textFrame.setIconImage(icon);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         textFrame.setLocationRelativeTo(null);
         textFrame.setVisible(true);
     }

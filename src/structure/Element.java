@@ -65,38 +65,6 @@ public class Element implements Serializable
         return active != null;
     }
 
-    public void moveTo(Point point)
-    {
-        if(active == null)
-        {
-            int deltaX = point.x - center.x;
-            int deltaY = point.y - center.y;
-            center = point;
-            for (HalfBond bond : halfBonds)
-            {
-                bond.moveStart(point);
-            }
-            for (Element element : dependent)
-            {
-                element.moveBy(deltaX, deltaY);
-            }
-        }
-        else active.moveEnd(point);
-    }
-
-    private void moveBy(int x, int y)
-    {
-        center.translate(x, y);
-        for(HalfBond bond: halfBonds)
-        {
-            bond.moveStart(center);
-        }
-        for(Element element: dependent)
-        {
-            element.moveBy(x, y);
-        }
-    }
-
     public void draw(Graphics g)
     {
         for(HalfBond bond: halfBonds)
@@ -150,98 +118,35 @@ public class Element implements Serializable
         return !halfBonds.isEmpty();
     }
 
-    /*private boolean isHydroxylGroup()
+    public void moveTo(Point point)
     {
-        if (elementName == structure.ElementName.OXYGEN && bonds.size() == 2)
+        if(active == null)
         {
-            List<structure.Bond> newBonds = new ArrayList<>(bonds);
-            newBonds.removeIf(bond -> bond.getAnother(this).elementName == structure.ElementName.HYDROGEN);
-            if(newBonds.size() != 1) return false;
-            return newBonds.get(0).getAnother(this).elementName == structure.ElementName.CARBON;
+            int deltaX = point.x - center.x;
+            int deltaY = point.y - center.y;
+            center = point;
+            for (HalfBond bond : halfBonds)
+            {
+                bond.moveStart(point);
+            }
+            for (Element element : dependent)
+            {
+                element.moveBy(deltaX, deltaY);
+            }
         }
-        return false;
+        else active.moveEnd(point);
     }
 
-    public boolean isAlcoholGroup()
+    private void moveBy(int x, int y)
     {
-        if(elementName == structure.ElementName.CARBON)
+        center.translate(x, y);
+        for(HalfBond bond: halfBonds)
         {
-            List<structure.Bond> newBonds = new ArrayList<>(bonds);
-            newBonds.removeIf(bond -> bond.getAnother(this).isHydroxylGroup());
-            if(bonds.size() == newBonds.size()) return false;
-            newBonds.removeIf(bond -> bond.getAnother(this).elementName != structure.ElementName.OXYGEN);
-            return newBonds.isEmpty();
+            bond.moveStart(center);
         }
-        return false;
-    }
-
-    public boolean isEtherGroup()
-    {
-        return elementName == structure.ElementName.OXYGEN &&
-                bonds.size() == 2 &&
-                bonds.get(0).getAnother(this).elementName == structure.ElementName.CARBON &&
-                bonds.get(1).getAnother(this).elementName == structure.ElementName.CARBON;
-    }
-
-    private boolean isCarbonylGroup()
-    {
-        return elementName == structure.ElementName.OXYGEN &&
-                bonds.size() == 1;
-    }
-
-    public boolean isAldehydeGroup()
-    {
-        if (elementName == structure.ElementName.CARBON && bonds.size() == 3)
+        for(Element element: dependent)
         {
-            List<structure.Bond> newBonds = new ArrayList<>(bonds);
-            newBonds.removeIf(bond -> bond.getAnother(this).isCarbonylGroup());
-            if(newBonds.size() != 2) return false;
-            newBonds.removeIf(bond -> bond.getAnother(this).elementName == structure.ElementName.HYDROGEN);
-            return newBonds.size() < 2;
+            element.moveBy(x, y);
         }
-        return false;
     }
-
-    public boolean isKetoneGroup()
-    {
-        if(elementName == structure.ElementName.CARBON && bonds.size() == 3)
-        {
-            List<structure.Bond> newBonds = new ArrayList<>(bonds);
-            newBonds.removeIf((bond) -> bond.getAnother(this).isCarbonylGroup());
-            if(newBonds.size() != 2) return false;
-            newBonds.removeIf((bond) -> bond.getAnother(this).elementName == structure.ElementName.CARBON);
-            return newBonds.size() == 0;
-        }
-        return false;
-    }
-
-    public boolean isCarboxylGroup()
-    {
-        if(elementName == structure.ElementName.CARBON && bonds.size() == 3)
-        {
-            List<structure.Bond> newBonds = new ArrayList<>(bonds);
-            newBonds.removeIf((bond) -> bond.getAnother(this).isCarbonylGroup());
-            if(newBonds.size() != 2) return false;
-            newBonds.removeIf((bond) -> bond.getAnother(this).isHydroxylGroup());
-            if (newBonds.size() != 1) return false;
-            return newBonds.get(0).getAnother(this).elementName != structure.ElementName.OXYGEN;
-        }
-        return false;
-    }
-
-    public boolean isWater()
-    {
-        return elementName == structure.ElementName.OXYGEN &&
-                bonds.size() == 2 &&
-                bonds.get(0).getAnother(this).elementName == structure.ElementName.HYDROGEN &&
-                bonds.get(1).getAnother(this).elementName == structure.ElementName.HYDROGEN;
-    }
-
-    public boolean isCO2()
-    {
-        return elementName == structure.ElementName.CARBON &&
-                bonds.size() == 2 &&
-                bonds.get(0).getAnother(this).elementName == structure.ElementName.OXYGEN &&
-                bonds.get(1).getAnother(this).elementName == structure.ElementName.OXYGEN;
-    }*/
 }

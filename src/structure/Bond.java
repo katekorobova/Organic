@@ -20,6 +20,7 @@ public class Bond implements Serializable
         element2.removeHalfBond();
     }
 
+    //Turn this bond into a stronger one
     public boolean upgrade()
     {
         if(bondType < 3)
@@ -32,6 +33,7 @@ public class Bond implements Serializable
         return false;
     }
 
+    //Make a weaker bond
     //true if needs to be deleted from the list
     public boolean downgrade()
     {
@@ -91,6 +93,7 @@ public class Bond implements Serializable
         return point.distance(start) + point.distance(end) < start.distance(end) + LINE_WIDTH;
     }
 
+    //Get element which is not this one
     public Element getAnother(Element element)
     {
         if(start == element) return end;

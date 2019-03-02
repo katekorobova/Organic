@@ -3,6 +3,7 @@ package structure;
 import java.awt.*;
 import java.io.Serializable;
 
+//HalfBond is basically a line that indicates a free valence
 public class HalfBond implements Serializable
 {
     private Point start;
@@ -30,18 +31,6 @@ public class HalfBond implements Serializable
         gr.fillOval(end.x - RADIUS, end.y - RADIUS, 2 * RADIUS, 2 * RADIUS);
     }
 
-    public void adjustEnd()
-    {
-        end.x = start.x + (int)(length * Math.cos(angle));
-        end.y = start.y + (int)(length * Math.sin(angle));
-    }
-
-    private void adjustAngle()
-    {
-        angle = Math.atan2(end.y - start.y, end.x - start.x);
-        length = start.distance(end);
-    }
-
     public void moveStart(Point point)
     {
         start = point;
@@ -58,6 +47,18 @@ public class HalfBond implements Serializable
     public boolean contains(Point point)
     {
         return end.distance(point) < RADIUS;
+    }
+
+    private void adjustEnd()
+    {
+        end.x = start.x + (int)(length * Math.cos(angle));
+        end.y = start.y + (int)(length * Math.sin(angle));
+    }
+
+    private void adjustAngle()
+    {
+        angle = Math.atan2(end.y - start.y, end.x - start.x);
+        length = start.distance(end);
     }
 
 }

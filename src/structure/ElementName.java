@@ -1,4 +1,4 @@
-package elements;
+package structure;
 
 public enum ElementName
 {

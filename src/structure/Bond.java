@@ -1,67 +1,61 @@
-package bonds;
-
-import elements.Element;
-import elements.ElementName;
+package structure;
 
 import java.awt.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 
-public class FilledBond implements Serializable
+public class Bond implements Serializable
 {
-    private Element element1;
-    private Element element2;
+    private Element start;
+    private Element end;
     private int bondType = 1;
     private static final int LINE_WIDTH = 5;
-    public static ArrayList<FilledBond> all = new ArrayList<>();
 
-    public FilledBond(UnfilledBond bond1, UnfilledBond bond2)
+    public Bond(Element element1, Element element2)
     {
-        element1 = bond1.getElement();
-        element2 = bond2.getElement();
-        element1.addFilledBond(this);
-        element2.addFilledBond(this);
-        bond1.delete();
-        bond2.delete();
-        all.add(this);
+        start = element1;
+        end = element2;
+        element1.addDependent(element2);
+        element2.addDependent(element1);
+        element1.removeHalfBond();
+        element2.removeHalfBond();
     }
 
-    public boolean upgrade(UnfilledBond bond1, UnfilledBond bond2)
+    public boolean upgrade()
     {
         if(bondType < 3)
         {
             bondType++;
-            bond1.delete();
-            bond2.delete();
+            start.removeHalfBond();
+            end.removeHalfBond();
             return true;
         }
         return false;
     }
 
+    //true if needs to be deleted from the list
     public boolean downgrade()
     {
-        if(bondType > 0)
+        bondType --;
+        start.addHalfBond();
+        end.addHalfBond();
+        if(bondType == 0)
         {
-            bondType --;
-            element1.addUnfilledBond();
-            element2.addUnfilledBond();
-            if(bondType == 0)
-            {
-                element1.removeDependent(element2);
-                element2.removeDependent(element1);
-                element1.removeFilledBond(this);
-                element2.removeFilledBond(this);
-                all.remove(this);
-            }
+            start.removeDependent(end);
+            end.removeDependent(start);
             return true;
         }
         return false;
+    }
+
+    public void delete()
+    {
+        while (!downgrade());
     }
 
     public void draw(Graphics g)
     {
-        Point position = element1.getCenter();
-        Point point = element2.getCenter();
+        Point position = start.getCenter();
+        Point point = end.getCenter();
         Graphics2D gr = (Graphics2D)g;
         gr.setColor(Color.WHITE);
         switch (bondType)
@@ -87,39 +81,40 @@ public class FilledBond implements Serializable
 
     public boolean connects(Element element)
     {
-        return element == element1 || element == element2;
-    }
-
-    public void delete()
-    {
-        while (downgrade());
+        return element == start || element == end;
     }
 
     public boolean contains(Point point)
     {
-        Point start = element1.getCenter();
-        Point end = element2.getCenter();
+        Point start = this.start.getCenter();
+        Point end = this.end.getCenter();
         return point.distance(start) + point.distance(end) < start.distance(end) + LINE_WIDTH;
     }
 
     public Element getAnother(Element element)
     {
-        if(element1 == element) return element2;
-        if(element2 == element) return element1;
+        if(start == element) return end;
+        if(end == element) return start;
         return null;
     }
 
     public boolean isDouble()
     {
         return bondType == 2 &&
-                element1.elementName == ElementName.CARBON &&
-                element2.elementName == ElementName.CARBON;
+                start.elementName == ElementName.CARBON &&
+                end.elementName == ElementName.CARBON;
     }
 
     public boolean isTriple()
     {
         return bondType == 3 &&
-                element1.elementName == ElementName.CARBON &&
-                element2.elementName == ElementName.CARBON;
+                start.elementName == ElementName.CARBON &&
+                end.elementName == ElementName.CARBON;
+    }
+
+    public boolean links(Element element1, Element element2)
+    {
+        return start == element1 && end == element2 ||
+                start == element2 && end == element1;
     }
 }

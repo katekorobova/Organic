@@ -383,8 +383,9 @@ public class Molecule implements Serializable
         if(element.elementName == ElementName.CARBON)
         {
             ArrayList<Bond> myBonds = bondsByElement(element);
+            int size = myBonds.size();
             myBonds.removeIf(bond -> isHydroxylGroup(bond.getAnother(element)));
-            if(bonds.size() == myBonds.size()) return false;
+            if(size == myBonds.size()) return false;
             myBonds.removeIf(bond -> bond.getAnother(element).elementName != ElementName.OXYGEN);
             return myBonds.isEmpty();
         }

@@ -12,7 +12,6 @@ import java.util.Random;
 public class Element implements Serializable
 {
     public ElementName elementName;
-    private int valency;
     private Point center;
     private List<HalfBond> halfBonds = new ArrayList<>();
     private List<Element> dependent = new ArrayList<>();
@@ -24,6 +23,7 @@ public class Element implements Serializable
     {
         elementName = name;
         center = point;
+        int valency;
         switch (name)
         {
             case CARBON:
@@ -32,7 +32,7 @@ public class Element implements Serializable
             case HYDROGEN:
                 valency = 1;
                 break;
-            case OXYGEN:
+            default:
                 valency = 2;
                 break;
         }
@@ -100,7 +100,7 @@ public class Element implements Serializable
 
     public void addDependent(Element element)
     {
-        if(valency > element.valency) dependent.add(element);
+        if(elementName.ordinal() > element.elementName.ordinal()) dependent.add(element);
     }
 
     public void removeDependent(Element element)
